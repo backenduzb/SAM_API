@@ -8,8 +8,8 @@ class TeacherTopic(models.Model):
     def __str__(self):
         return self.topic_name
     class Meta:
-        verbose_name = "Konfedra"
-        verbose_name_plural = "Konfedralar"
+        verbose_name = "Kafedra"
+        verbose_name_plural = "Kafedralar"
 
 class TeacherUsersStats(models.Model):
     full_name = models.CharField(max_length=100)
