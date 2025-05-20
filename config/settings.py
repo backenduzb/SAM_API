@@ -108,7 +108,17 @@ USE_TZ = True
 STATIC_URL = 'static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
-
+STATICFILES_DIRS = [BASE_DIR / "static"]
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
+
+
+JAZZMIN_SETTINGS = {
+    "login_logo": "admin/img/logo.jpg",
+    "site_logo_classes": "img-circle",
+    'custom_css':"css/admin/style.css",
+    "welcome_sign":"Hush kelibsiz!",
+    "copyright": "Samarqand viloyati pedagogik mahorat markazi",
+}
+ 

@@ -10,6 +10,7 @@ import pandas as pd
 from django.utils.timezone import is_aware
 from django.http import HttpResponse
 import io
+from rest_framework.generics import RetrieveUpdateAPIView
 
 __all__ = [
     'TeacherUsersStatsView',
@@ -33,31 +34,19 @@ class TeacherUsersStatsView(APIView):
         serializer = self.serializer_class(stats, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-class TeacherEditView(APIView):
+class TeacherEditView(RetrieveUpdateAPIView):
     serializer_class = TeacherEditSerializer
-    permission_classes = [AllowAny]
+    permission_classes = [AllowAny]  
+    queryset = TeacherUsersStats.objects.all()
+    lookup_field = 'id'
 
-    def get(self, request, id=None):
-        try:
-            stats = TeacherUsersStats.objects.get(id=id)
-        except TeacherUsersStats.DoesNotExist:
-            return Response({"detail": "Not found."}, status=status.HTTP_404_NOT_FOUND)
-
-        serializer = self.serializer_class(stats)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
-    def put(self, request, id=None):
-        try:
-            stats = TeacherUsersStats.objects.get(id=id)
-        except TeacherUsersStats.DoesNotExist:
-            return Response({"detail": "Not found."}, status=status.HTTP_404_NOT_FOUND)
-
-        serializer = self.serializer_class(stats, data=request.data, partial=True)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
+    def get(self, request, *args, **kwargs):
+        if self.kwargs.get('id') is None:
+            return Response(
+                {"detail": "ID kiritilishi shart."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        return super().get(request, *args, **kwargs)
 
 class ExportToExcelView(APIView):
     permission_classes = [AllowAny]

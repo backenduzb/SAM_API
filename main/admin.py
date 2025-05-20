@@ -6,7 +6,7 @@ admin.site.unregister(User)
 admin.site.unregister(Group)
 
 class UserAdmin(admin.ModelAdmin):
-    list_display = ('full_name', 'updated_at', 'topic', 'juda_ham_qoniqaman', 'ortacha_qoniqaman', 'asosan_qoniqaman', 'qoniqmayman', 'umuman_qoniqaman')
+    list_display = ('full_name', 'updated_at', 'topic', 'juda_ham_qoniqaman', 'ortacha_qoniqaman', 'asosan_qoniqaman', 'qoniqmayman', 'umuman_qoniqaman','telegram_id')
     list_filter = ('full_name', 'updated_at', 'topic')
     change_list_template = 'teacherusersstats_change_list.html'
 
