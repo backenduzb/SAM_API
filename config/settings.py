@@ -120,5 +120,15 @@ JAZZMIN_SETTINGS = {
     'custom_css':"css/admin/style.css",
     "welcome_sign":"Hush kelibsiz!",
     "copyright": "Samarqand viloyati pedagogik mahorat markazi",
+    "site_brand": "SamPMM Admin",
+    "topmenu_links": [
+
+        {"name": "Home",  "url": "/admin"},
+
+        {"name": "Kafedra", "url": "/admin/main/teachertopic/"},
+
+        {"name": "Ustozlar", "url":"/admin/main/teacherusersstats/"},
+
+        {"app": "books"},
+    ],
 }
- 
