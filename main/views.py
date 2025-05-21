@@ -6,7 +6,8 @@ from rest_framework import status
 from .serializers import *
 from rest_framework.permissions import AllowAny
 from .models import TeacherUsersStats, TeacherTopic
-import pandas as pd
+from openpyxl import Workbook
+from openpyxl.styles import Font, Alignment, Border, Side
 from django.utils.timezone import is_aware
 from django.http import HttpResponse
 import io
@@ -53,29 +54,63 @@ class ExportToExcelView(APIView):
 
     def get(self, request):
         queryset = TeacherUsersStats.objects.all()
-        data = []
+
+        wb = Workbook()
+        ws = wb.active
+        ws.title = "TeacherStats"
+
+        headers = [
+            'F.I.O', 'Juda yaxshi', 'Yaxshi',
+            "O'rtacha", 'Past', 'Yomon',
+        ]
+        ws.append(headers)
+
+        header_font = Font(bold=True)
+        center_alignment = Alignment(horizontal='center', vertical='center')
+        thin_border = Border(
+            left=Side(style='thin'),
+            right=Side(style='thin'),
+            top=Side(style='thin'),
+            bottom=Side(style='thin')
+        )
+
+        for col_num, header in enumerate(headers, 1):
+            cell = ws.cell(row=1, column=col_num)
+            cell.font = header_font
+            cell.alignment = center_alignment
+            cell.border = thin_border
 
         for obj in queryset:
             updated_at = obj.updated_at
             if is_aware(updated_at):
                 updated_at = updated_at.replace(tzinfo=None)
 
-            data.append({
-                'full_name': obj.full_name,
-                'juda_ham_qoniqaman': obj.juda_ham_qoniqaman,
-                'ortacha_qoniqaman': obj.ortacha_qoniqaman,
-                'asosan_qoniqaman': obj.asosan_qoniqaman,
-                'qoniqmayman': obj.qoniqmayman,
-                'umuman_qoniqaman': obj.umuman_qoniqaman,
-                'updated_at': updated_at,
-                'topic_name': obj.topic.topic_name if obj.topic else None
-            })
+            row = [
+                obj.full_name,
+                obj.juda_ham_qoniqaman,
+                obj.ortacha_qoniqaman,
+                obj.asosan_qoniqaman,
+                obj.qoniqmayman,
+                obj.umuman_qoniqaman,
+            ]
+            ws.append(row)
 
-        df = pd.DataFrame(data)
+        for column_cells in ws.columns:
+            max_length = 0
+            column = column_cells[0].column_letter
+            for cell in column_cells:
+                try:
+                    cell_value = str(cell.value)
+                    if cell_value:
+                        max_length = max(max_length, len(cell_value))
+                    cell.border = thin_border  
+                    cell.alignment = Alignment(vertical='center')
+                except:
+                    pass
+            ws.column_dimensions[column].width = max_length + 2
+
         output = io.BytesIO()
-        with pd.ExcelWriter(output, engine='openpyxl') as writer:
-            df.to_excel(writer, index=False, sheet_name='TeacherStats')
-
+        wb.save(output)
         output.seek(0)
 
         response = HttpResponse(
@@ -84,7 +119,7 @@ class ExportToExcelView(APIView):
         )
         response['Content-Disposition'] = 'attachment; filename=teacher_users_stats.xlsx'
         return response
-    
+        
 class TopicedTeachersView(ListAPIView):
     queryset = TeacherUsersStats.objects.all()
     permission_classes = [AllowAny]
